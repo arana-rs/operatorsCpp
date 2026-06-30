@@ -25,101 +25,93 @@ int Fraction::den() const {
 }
 
 void Fraction::normalize(){
-  // TODO: normalizar la fraccion.
-  // Sugerencia:
-  // 1. Si denominator < 0, mover el signo al numerador.
-  // 2. Usar std::gcd para reducir numerator y denominator.
+  if (denominator < 0) {
+    denominator = -denominator;
+    numerator = -numerator;
+  }
+
+  int gcd = std::gcd(numerator, denominator);
+  numerator /= gcd;
+  denominator /= gcd;
 }
 
 Fraction& Fraction::operator+=(const Fraction& other){
-  // TODO: implementar suma compuesta.
-  (void)other;
+  numerator = numerator * other.den() + other.num() * denominator;
+  denominator = denominator * other.den();
+
+  normalize();
   return *this;
 }
 
 Fraction& Fraction::operator-=(const Fraction& other){
-  // TODO: implementar resta compuesta.
-  (void)other;
+  numerator = numerator * other.den() - other.num() * denominator;
+  denominator = denominator * other.den();
+
+  normalize();
   return *this;
 }
 
 Fraction operator+(Fraction a, const Fraction& b){
-  // TODO: reutilizar operator+=.
-  (void)b;
+  a += b;
   return a;
 }
 
 Fraction operator-(Fraction a, const Fraction& b){
-  // TODO: reutilizar operator-=.
-  (void)b;
+  a -= b;
   return a;
 }
 
 Fraction operator*(const Fraction& a, const Fraction& b){
-  // TODO: implementar multiplicacion.
-  (void)a;
-  (void)b;
-  return Fraction(0, 1);
+  return Fraction(a.num() * b.num(), a.den() * b.den());
 }
 
 Fraction operator/(const Fraction& a, const Fraction& b){
-  // TODO: implementar division y rechazar division por fraccion cero.
-  (void)a;
-  (void)b;
-  return Fraction(0, 1);
+  if(b.num() == 0)
+    throw std::invalid_argument("b numerator can't be zero");
+
+  return Fraction(a.num() * b.den(), a.den() * b.num());
 }
 
 bool operator==(const Fraction& a, const Fraction& b){
-  // TODO: implementar igualdad.
-  (void)a;
-  (void)b;
-  return false;
+  return a.num() == b.num() && a.den() == b.den();
 }
 
 bool operator!=(const Fraction& a, const Fraction& b){
-  // TODO: implementar usando operator==.
-  (void)a;
-  (void)b;
-  return false;
+  return !(a == b);
 }
 
 bool operator<(const Fraction& a, const Fraction& b){
-  // TODO: implementar usando productos cruzados.
-  (void)a;
-  (void)b;
-  return false;
+  return a.num() * b.den() < b.num() * a.den();
 }
 
 bool operator<=(const Fraction& a, const Fraction& b){
-  // TODO: implementar usando operator< y operator==.
-  (void)a;
-  (void)b;
-  return false;
+  return a < b || a == b;
 }
 
 bool operator>(const Fraction& a, const Fraction& b){
-  // TODO: implementar usando operator<.
-  (void)a;
-  (void)b;
-  return false;
+  return !(a <= b);
 }
 
 bool operator>=(const Fraction& a, const Fraction& b){
-  // TODO: implementar usando operator<.
-  (void)a;
-  (void)b;
-  return false;
+  return !(a < b);
 }
 
 std::ostream& operator<<(std::ostream& os, const Fraction& f){
-  // TODO: imprimir con el formato numerador/denominador.
-  (void)f;
+  os << f.num() << '/' << f.den();
   return os;
 }
 
 std::istream& operator>>(std::istream& is, Fraction& f){
-  // TODO: leer con el formato numerador/denominador.
-  // Si la entrada es invalida, marcar failbit y no modificar f.
-  (void)f;
+  int num, den;
+  char slash;
+
+  if (is >> num >> slash >> den) {
+    if (slash != '/' || den == 0) {
+      is.setstate(std::ios::failbit);
+    } else {
+      f = Fraction(num, den);
+    }
+  }
+
   return is;
 }
